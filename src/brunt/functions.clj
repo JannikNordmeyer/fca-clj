@@ -6,6 +6,7 @@
             [conexp.fca.implications :refer :all]
             [conexp.fca.exploration :refer :all]
             [conexp.fca.pqcores :refer :all]
+            [conexp.fca.matrix-factorizations :refer :all]
             [conexp.math.sampling :refer [minimals-plus]]
             [conexp.gui.draw :refer :all]
             [conexp.gui.draw.scenes :refer [save-image show-labels]]
@@ -65,7 +66,14 @@
               "ctx-core-sizes" ["Context File Path"]
               "core-lattice-sizes" ["Context File Path"]
               "large-ctx-lattice-sizes-partial" ["Context File Path" "Maximum Lattice Size"]
-              "iceberg-lattice" ["Context File Path" "Minimum Support"]))
+              "iceberg-lattice" ["Context File Path" "Minimum Support"]
+              "hyper" ["Context File Path" "Minimum Support"]
+              "topfiberm" ["Context File Path" "Rank" "Precision Threshold" "Search Limit"]
+              "panda" ["Context File Path" "Number of Factors"]
+              "tiling" ["Context File Path" "Number of Factors"]
+              "grecond" ["Context File Path"]
+              "greess" ["Context File Path" "Error"]
+              "asso" ["Context File Path" "Number of Basis Vectors" "Threshold" "Positive Weight" "Negative Weight"]))
 
 
 (defn get-function
@@ -207,5 +215,39 @@
                               latt (iceberg-lattice ctx (load-string minsupp))]
                           (draw-lattice latt
                                         :value-fn (comp count first))))
+    "hyper" (fn [ctx-path min-supp]
+              (let [result (hyper (read-context ctx-path) (load-string min-supp))]
+                (println (object-factor-context result))
+                (println (factor-attribute-context result))))
+
+    "topfiberm" (fn [ctx-path k tP search-limit]
+                  (let [result (topFiberM (read-context ctx-path) (load-string k) (load-string tP) (load-string search-limit))]
+                    (println (object-factor-context result))
+                    (println (factor-attribute-context result))))
+
+    "panda" (fn [ctx-path k]
+              (let [result (PaNDa (read-context ctx-path) (load-string k))]
+                (println (object-factor-context result))
+                (println (factor-attribute-context result))))
+
+    "tiling" (fn [ctx-path k]
+               (let [result (tiling (read-context ctx-path) (load-string k))]
+                 (println (object-factor-context result))
+                 (println (factor-attribute-context result))))
+
+    "grecond" (fn [ctx-path]
+                (let [result (grecond (read-context ctx-path))]
+                  (println (object-factor-context result))
+                  (println (factor-attribute-context result))))
+
+    "greess" (fn [ctx-path e]
+               (let [result (GreEss (read-context ctx-path) (load-string e))]
+                 (println (object-factor-context result))
+                 (println (factor-attribute-context result))))
+
+    "asso" (fn [ctx-path k t w+ w-]
+               (let [result (ASSO (read-context ctx-path) (load-string k) (load-string t) (load-string w+) (load-string w-))]
+                 (println (object-factor-context result))
+                 (println (factor-attribute-context result))))
     nil))
 
